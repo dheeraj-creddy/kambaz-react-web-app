@@ -3,6 +3,9 @@ export default function Lab1() {
     <div id="wd-labs1">
         <h2>Lab 1</h2>
         <h3><em>Dheeraj Chintamreddy CS5610.35649.202530</em></h3>
+        <a href= "https://github.com/dheeraj-creddy/kambaz-react-web-app">
+            github repo
+        </a>
         <h3>HTML Examples</h3>
         <div id="wd-h-tag">
             <h4>Heading Tags</h4>
