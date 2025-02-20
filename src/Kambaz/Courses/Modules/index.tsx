@@ -1,39 +1,46 @@
+import LessonControlButtons from "./LessonControlButtons";
 import ModulesControls from "./ModulesControls";
-import {ListGroup} from "react-bootstrap";
-import ModuleControlButtons from "./ModuleControlButtons.tsx";
-import LessonControlButtons from "./LessonControlButtons.tsx";
-import {BsGripVertical} from "react-icons/bs";
+import { BsGripVertical } from "react-icons/bs";
+import GreenCheckmark from "./GreenCheckmark";
+import { FaPlus } from "react-icons/fa";
+import { IoEllipsisVertical } from "react-icons/io5";
+import { useParams } from "react-router";
+import * as db from "../../Database";
+
 export default function Modules() {
+    const { cid } = useParams();
+    const modules = db.modules;
+
     return (
         <div>
-            <ModulesControls/><br/><br/><br/><br/>
-            <ListGroup className="rounded-0" id="wd-modules">
-                <ListGroup.Item className="wd-module p-0 mb-5 fs-5 border-gray">
-                    <div className="wd-title p-3 ps-2 bg-secondary"> Week 1 <ModuleControlButtons />
-                    </div>
-                    <ListGroup className="wd-lessons rounded-0">
-                        <ListGroup.Item className="wd-lesson p-3 ps-1">
-                            <BsGripVertical className="me-2 fs-3" /> LEARNING OBJECTIVES <LessonControlButtons />
-                        </ListGroup.Item>
-                        <ListGroup.Item className="wd-lesson p-3 ps-1">
-                            <BsGripVertical className="me-2 fs-3" /> Introduction to the course <LessonControlButtons />
-                        </ListGroup.Item>
-                        <ListGroup.Item className="wd-lesson p-3 ps-1">
-                            <BsGripVertical className="me-2 fs-3" /> Learn what is Web Development <LessonControlButtons />
-                        </ListGroup.Item>
-                    </ListGroup>
-                </ListGroup.Item>
-                <ListGroup.Item className="wd-module p-0 mb-5 fs-5 border-gray">
-                    <div className="wd-title p-3 ps-2 bg-secondary"> Week 2</div>
-                    <ListGroup className="wd-lessons rounded-0">
-                        <ListGroup.Item className="wd-lesson p-3 ps-1">
-                            LESSON 1 </ListGroup.Item>
-                        <ListGroup.Item className="wd-lesson p-3 ps-1">
-                            LESSON 2 </ListGroup.Item>
-                    </ListGroup>
-                </ListGroup.Item>
-            </ListGroup>
+            <ModulesControls/>
+            <br /><br /><br /><br />
+            <ul id="wd-modules" className="list-group rounded-0">
+                {modules.filter(module => module.course === cid).map(module => (
+                    <li key={module._id} className="wd-module list-group-item p-0 mb-5 fs-5 border-gray">
+                        <div className="wd-title p-3 ps-2 bg-secondary">
+                            <BsGripVertical className="me-2 fs-3" />
+                            {module.name}
+                            <div className="float-end">
+                                <GreenCheckmark />
+                                <FaPlus style={{ marginRight: '5px', marginLeft: "5px" }} />
+                                <IoEllipsisVertical className="fs-4" />
+                            </div>
+                        </div>
+                        {module.lessons && module.lessons.length > 0 && (
+                            <ul className="wd-lessons list-group rounded-0">
+                                {module.lessons.map(lesson => (
+                                    <li key={lesson._id} className="wd-lesson list-group-item p-3 ps-1">
+                                        <BsGripVertical className="me-2 fs-3" />
+                                        {lesson.name}
+                                        <LessonControlButtons />
+                                    </li>
+                                ))}
+                            </ul>
+                        )}
+                    </li>
+                ))}
+            </ul>
         </div>
     );
 }
-

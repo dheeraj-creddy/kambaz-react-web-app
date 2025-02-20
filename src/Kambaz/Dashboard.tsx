@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import * as db from "/Users/dheerajreddy/Desktop/NEU/neu_webdev/kambaz-react-web-app/src/Kambaz/Database";
+import * as db from "./Database";
 
 export default function Dashboard() {
     const courses = db.courses;
