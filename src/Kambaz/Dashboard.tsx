@@ -13,7 +13,7 @@ export default function Dashboard() {
                         <div className="wd-dashboard-course col" style={{ width: "300px" }} key={course._id}>
                             <div className="card rounded-3 overflow-hidden">
                                 <Link className="wd-dashboard-course-link text-decoration-none text-dark" to={`/Kambaz/Courses/${course._id}/Home`}>
-                                    <img src="/images/react.png" alt={`${course.name} thumbnail`} width="100%" height={160} />
+                                    <img src={course.image} alt={`${course.name} thumbnail`} width="100%" height={160} />
                                     <div className="card-body">
                                         <h5 className="wd-dashboard-course-title card-title">{course.name}</h5>
                                         <p className="wd-dashboard-course-title card-text overflow-y-hidden" style={{ maxHeight: 100 }}>
