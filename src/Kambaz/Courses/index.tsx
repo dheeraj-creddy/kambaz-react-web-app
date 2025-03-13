@@ -1,6 +1,6 @@
 import CoursesNavigation from "./Navigation";
-import { courses } from "../Database";
-import { Route, Routes, useParams, useLocation } from "react-router";
+//import { courses } from "../Database";
+import { Navigate, Route, Routes, useParams, useLocation } from "react-router";
 import Modules from "./Modules";
 import Home from "./Home";
 import Assignments from "./Assignments";
@@ -8,14 +8,16 @@ import AssignmentEditor from "./Assignments/Editor";
 import { FaAlignJustify } from "react-icons/fa";
 import PeopleTable from "./People/Table";
 
-export default function Courses() {
+export default function Courses({ courses }: { courses: any[]; }) {
     const { cid } = useParams();
     const course = courses.find((course) => course._id === cid);
     const { pathname } = useLocation();
 
+    // Split pathname and find the relevant segment
     const pathSegments = pathname.split("/");
-    const currentSegment = pathSegments[pathSegments.length - 1] || "Home";
+    const currentSegment = pathSegments[pathSegments.length - 1] || "Home"; // Get the last segment or default to "Home"
 
+    // Sanitize the current segment to remove any unwanted characters
     const sanitizedSegment = currentSegment.replace(/%60/g, "").replace(/[^\w\s]/g, "");
 
     return (
@@ -32,6 +34,7 @@ export default function Courses() {
                 </div>
                 <div className="flex-fill">
                     <Routes>
+                        <Route path="/" element={<Navigate to="Home" />} />
                         <Route path="Home" element={<Home />} />
                         <Route path="Modules" element={<Modules />} />
                         <Route path="Assignments" element={<Assignments />} />

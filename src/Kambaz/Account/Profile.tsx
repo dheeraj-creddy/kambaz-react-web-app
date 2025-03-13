@@ -1,73 +1,49 @@
-import { Form} from "react-bootstrap";
-import { Link } from "react-router-dom";
-
+import { useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { useSelector, useDispatch } from "react-redux";
+import { setCurrentUser } from "./reducer";
 export default function Profile() {
+
+    const [profile, setProfile] = useState<any>({});
+    const dispatch = useDispatch();
+    const navigate = useNavigate();
+    const { currentUser } = useSelector((state: any) => state.accountReducer);
+    const fetchProfile = () => {
+        if (!currentUser) return navigate("/Kambaz/Account/Signin");
+        setProfile(currentUser);
+    };
+    const signout = () => {
+        dispatch(setCurrentUser(null));
+        navigate("/Kambaz/Account/Signin");
+    };
+    useEffect(() => { fetchProfile(); }, []);
     return (
-        <div id="wd-profile-screen" className="w-80">
-            <h1 className="mb-4">Profile</h1>
-            <Form>
-                <Form.Group className="mb-3">
-                    <Form.Label>Username</Form.Label>
-                    <Form.Control
-                        id="wd-username"
-                        defaultValue="alice"
-                        readOnly
-                    />
-                </Form.Group>
-
-                <Form.Group className="mb-3">
-                    <Form.Label>Email</Form.Label>
-                    <Form.Control
-                        id="wd-email"
-                        type="email"
-                        defaultValue="alice@wonderland.com"
-                        readOnly
-                    />
-                </Form.Group>
-
-                <Form.Group className="mb-3">
-                    <Form.Label>First Name</Form.Label>
-                    <Form.Control
-                        id="wd-firstname"
-                        defaultValue="Alice"
-                    />
-                </Form.Group>
-
-                <Form.Group className="mb-3">
-                    <Form.Label>Last Name</Form.Label>
-                    <Form.Control
-                        id="wd-lastname"
-                        defaultValue="Wonderland"
-                    />
-                </Form.Group>
-
-                <Form.Group className="mb-3">
-                    <Form.Label>Date of Birth</Form.Label>
-                    <Form.Control
-                        id="wd-dob"
-                        type="date"
-                        defaultValue="2000-01-01"
-                    />
-                </Form.Group>
-
-                <Form.Group className="mb-4">
-                    <Form.Label>Role</Form.Label>
-                    <Form.Select id="wd-role">
+        <div className="wd-profile-screen">
+            <h3>Profile</h3>
+            {profile && (
+                <div>
+                    <input defaultValue={profile.username} id="wd-username" className="form-control mb-2"
+                           onChange={(e) => setProfile({ ...profile, username:  e.target.value })}/>
+                    <input defaultValue={profile.password} id="wd-password" className="form-control mb-2"
+                           onChange={(e) => setProfile({ ...profile, password:  e.target.value })}/>
+                    <input defaultValue={profile.firstName} id="wd-firstname" className="form-control mb-2"
+                           onChange={(e) => setProfile({ ...profile, firstName: e.target.value })}/>
+                    <input defaultValue={profile.lastName} id="wd-lastname" className="form-control mb-2"
+                           onChange={(e) => setProfile({ ...profile, lastName:  e.target.value })}/>
+                    <input defaultValue={profile.dob} id="wd-dob" className="form-control mb-2"
+                           onChange={(e) => setProfile({ ...profile, dob: e.target.value })} type="date"/>
+                    <input defaultValue={profile.email} id="wd-email" className="form-control mb-2"
+                           onChange={ (e) => setProfile({ ...profile, email: e.target.value })}/>
+                    <select onChange={(e) => setProfile({ ...profile, role:  e.target.value })}
+                            className="form-control mb-2" id="wd-role">
                         <option value="USER">User</option>
                         <option value="ADMIN">Admin</option>
                         <option value="FACULTY">Faculty</option>
                         <option value="STUDENT">Student</option>
-                    </Form.Select>
-                </Form.Group>
-
-                <div className="d-flex justify-content-end">
-                    <Link
-                        to="/Kambaz/Account/Signin"
-                        className="btn btn-danger">
-                        Sign Out
-                    </Link>
+                    </select>
+                    <button onClick={signout} className="btn btn-danger w-100 mb-2" id="wd-signout-btn">
+                        Sign out
+                    </button>
                 </div>
-            </Form>
-        </div>
-    );
-}
+            )}
+        </div>);}
