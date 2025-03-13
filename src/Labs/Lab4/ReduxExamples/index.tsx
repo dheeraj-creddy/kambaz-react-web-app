@@ -1,10 +1,8 @@
-import React from "react";
 import HelloRedux from "./HelloRedux";
 import CounterRedux from "./CounterRedux";
-import Add from "../../Lab3/Add";
+//import Add from "../../Lab3/Add";
 import AddRedux from "./AddRedux";
 import TodoList from "./todos/TodoList";
-import TodoForm from "./todos/TodoForm";
 
 export default function ReduxExamples() {
   return(
@@ -14,7 +12,6 @@ export default function ReduxExamples() {
       <CounterRedux />
       <AddRedux />
       <TodoList />
-      
     </div>
   );
 };
