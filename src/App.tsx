@@ -10,7 +10,7 @@ export default function App() {
             <Provider store={store}>
                 <div>
                     <Routes>
-                        <Route path="/" element={<Navigate to="/Labs" />} />
+                        <Route path="/" element={<Navigate to="/Kambaz" />} />
                         <Route path="/Labs/*" element={<Labs />} />
                         <Route path="/Kambaz/*" element={<Kambaz />} />
                     </Routes>
