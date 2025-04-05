@@ -39,7 +39,9 @@ export default function Kambaz() {
   const dispatch = useDispatch();
 
   const addNewCourse = async () => {
-    const newCourse = await userClient.createCourse(course);
+    const courseToCreate = { ...course };
+    delete courseToCreate._id;
+    const newCourse = await userClient.createCourse(courseToCreate);
     setCourses([...courses, newCourse ]);
     dispatch(addEnrollment({ user: currentUser._id, course: newCourse._id }))
   };
