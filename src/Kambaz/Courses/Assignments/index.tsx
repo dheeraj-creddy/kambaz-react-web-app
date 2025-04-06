@@ -10,6 +10,7 @@ import { Link, useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { setAssignment, deleteAssignment, setAssignments } from "./reducer";
 import * as assignmentClient from "./client";
+
 export default function Assignments() {
   const { cid } = useParams();
   const intialAssignment = {
@@ -21,19 +22,34 @@ export default function Assignments() {
     unlock: "2023-09-11T00:00"
   }
   const { assignments } = useSelector((state: any) => state.assignmentReducer);
-  //const { assignment } = useSelector((state: any) => state.assignmentReducer);
   const dispatch = useDispatch();
+  
   const fetchAllAssignments = async () => {
-    const modules = await assignmentClient.fetchAssignmentsForCourse(cid as string);
-    dispatch(setAssignments(modules));
+    try {
+      console.log("Fetching assignments for course:", cid);
+      const assignments = await assignmentClient.fetchAssignmentsForCourse(cid as string);
+      console.log("Fetched assignments:", assignments);
+      dispatch(setAssignments(assignments));
+    } catch (error) {
+      console.error("Error fetching assignments:", error);
+    }
   };
+  
   useEffect(() => {
     fetchAllAssignments();
-  }, []);
+  }, [cid]);
 
   const removeAssignment = async (assignmentId: string) => {
-    await assignmentClient.deleteAssignment(assignmentId);
-    dispatch(deleteAssignment(assignmentId));
+    try {
+      console.log("Deleting assignment:", assignmentId);
+      await assignmentClient.deleteAssignment(assignmentId);
+      dispatch(deleteAssignment(assignmentId));
+      // Refresh assignments after deletion
+      fetchAllAssignments();
+    } catch (error) {
+      console.error("Error deleting assignment:", error);
+      alert("Failed to delete assignment. Please try again.");
+    }
   }
 
   return (
@@ -48,8 +64,9 @@ export default function Assignments() {
               <span className="float-end border boder-dark rounded p-1">40% of Total</span>
             </div>
             <ul className="wd-lessons list-group rounded-0">
-              {assignments.map((assignment: any) => (
-                  <li className="wd-lesson list-group-item p-3 ps-1">
+              {assignments && assignments.length > 0 ? (
+                assignments.map((assignment: any) => (
+                  <li key={assignment._id} className="wd-lesson list-group-item p-3 ps-1">
                     <div className="position-absolute top-50 start-0 translate-middle-y">
                       <BsGripVertical className="me-2 fs-3" />
                       <MdOutlineAssignment className="me-2 fs-3" color="green" />
@@ -76,7 +93,14 @@ export default function Assignments() {
                     </div>
                     <br /><br /><br />
                   </li>
-              ))}
+                ))
+              ) : (
+                <li className="wd-lesson list-group-item p-3 ps-1">
+                  <div className="text-center">
+                    <p>No assignments found. Click "Add Assignment" to create one.</p>
+                  </div>
+                </li>
+              )}
             </ul>
           </li>
         </ul>

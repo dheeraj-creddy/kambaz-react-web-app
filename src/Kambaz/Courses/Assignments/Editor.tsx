@@ -2,7 +2,7 @@ import { useParams, useNavigate } from "react-router";
 import { Link} from "react-router-dom";
 // useLocation
 //import * as db from "../../Database";
-import { addAssignment, setAssignment,  updateAssignment } from "./reducer";
+import { addAssignment, setAssignment,  updateAssignment, setAssignments } from "./reducer";
 //setAssignments,
 import { useDispatch, useSelector } from "react-redux";
 //import { useState } from "react";
@@ -15,20 +15,57 @@ export default function AssignmentEditor() {
   const { assignment } = useSelector((state: any) => state.assignmentReducer);
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  
   const handleSave = async () => {
-    if (aid === "new") {
-      await assignmentClient.createNewAssignment(assignment);
-      dispatch(addAssignment({
-        ...assignment
-      }));
-    } else {
-      await assignmentClient.updateAssignment(assignment);
-      dispatch(updateAssignment({
-        ...assignment
-      }));
+    try {
+      console.log("Saving assignment with aid:", aid);
+      
+      // Check if we're creating a new assignment
+      if (aid === "new" || aid === undefined) {
+        // Create a new assignment with the course ID
+        const assignmentToCreate = {
+          ...assignment,
+          course: cid
+        };
+        
+        console.log("Creating new assignment:", assignmentToCreate);
+        
+        // Create the assignment using the backend API
+        const newAssignment = await assignmentClient.createNewAssignment(assignmentToCreate);
+        console.log("Created assignment:", newAssignment);
+        
+        // Update Redux store
+        dispatch(addAssignment(newAssignment));
+        
+        // Refresh the assignments list
+        const assignments = await assignmentClient.fetchAssignmentsForCourse(cid as string);
+        console.log("Fetched assignments after creation:", assignments);
+        dispatch(setAssignments(assignments));
+      } else {
+        // Update existing assignment
+        console.log("Updating existing assignment:", assignment);
+        await assignmentClient.updateAssignment(assignment);
+        dispatch(updateAssignment(assignment));
+        
+        // Refresh the assignments list
+        const assignments = await assignmentClient.fetchAssignmentsForCourse(cid as string);
+        console.log("Fetched assignments after update:", assignments);
+        dispatch(setAssignments(assignments));
+      }
+      
+      // Navigate back to assignments list
+      navigate(`../`);
+    } catch (error) {
+      console.error("Error saving assignment:", error);
+      alert("Failed to save assignment. Please try again.");
     }
-    navigate(`/Kanbas/Courses/${cid}/Assignments`);
   };
+  
+  // Log the current state for debugging
+  console.log("Current assignment state:", assignment);
+  console.log("Current aid:", aid);
+  console.log("Current cid:", cid);
+  
   return (
       <div id="wd-assignments-editor" className="me-4">
         <div>
@@ -110,7 +147,7 @@ export default function AssignmentEditor() {
         </div>
         <hr />
         <button onClick={handleSave} className="btn btn-lg btn-danger me-1 float-end">Save</button>
-        <Link to={`/Kanbas/Courses/${cid}/Assignments`}>
+        <Link to={`../`}>
           <button className="btn btn-lg btn-secondary me-1 float-end">Cancel</button>
         </Link>
 
