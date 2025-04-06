@@ -1,9 +1,9 @@
 import { FaPlus } from "react-icons/fa6";
-import { Link, useParams } from "react-router-dom";
+import { Link } from "react-router-dom";
+
 export default function AssignmentControls(
     { setAssignment }: { setAssignment: () => void; }
 ) {
-    const {cid} = useParams();
     return (
         <div id="wd-modules-controls" className="text-nowrap">
             <input id="wd-search-assignment" className="form-control float-start w-50" type="search" placeholder="&#128269; Search.." />
