@@ -1,5 +1,5 @@
 import Modules from "../Modules";
-import CourseStatus from "./Status.tsx";
+import CourseStatus from "./Status";
 export default function Home() {
   return (
     <div className="d-flex" id="wd-home">
