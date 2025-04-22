@@ -1,26 +1,15 @@
 import { Route, Navigate, Routes, useParams, useLocation } from "react-router";
-import { useState, useEffect } from "react";
-import CoursesNavigation from "./Navigation";
+import CoursesNavigation from "./Navigation.tsx";
 import Modules from "./Modules";
 import Home from "./Home";
 import Assignments from "./Assignments";
-import AssignmentEditor from "./Assignments/Editor";
+import AssignmentEditor from "./Assignments/Editor.tsx";
 import { FaAlignJustify } from "react-icons/fa6";
-import PeopleTable from "./People/Table";
-import * as client from "./client";
+import PeopleTable from "./People/Table.tsx";
 export default function Courses({ courses }: { courses: any[]; }) {
   const { cid } = useParams();
   const course = courses.find((course) => course._id === cid);
   const { pathname } = useLocation();
-  const [users, setUsers] = useState<any[]>([]);
-  const fetchUsers = async (cid: any) => {
-    const users = await client.findUsersForCourse(cid);
-    setUsers(users);
-  };
-  const { uid } = useParams();
-  useEffect(() => {
-    fetchUsers(cid);
-  }, [uid]);
   return (
     <div id="wd-courses">
       <h2 className="text-danger">
@@ -37,8 +26,9 @@ export default function Courses({ courses }: { courses: any[]; }) {
             <Route path="Home" element={<Home />} />
             <Route path="Modules" element={<Modules />} />
             <Route path="Assignments" element={<Assignments />} />
+            <Route path="Assignments/new" element={<AssignmentEditor />} />
             <Route path="Assignments/:aid" element={<AssignmentEditor />} />
-            <Route path="People" element={<PeopleTable users={users} />} />
+            <Route path="People" element={<PeopleTable />} />
           </Routes>
         </div>
       </div>

@@ -3,7 +3,6 @@ import { AiOutlineDashboard } from "react-icons/ai";
 import { IoCalendarOutline } from "react-icons/io5";
 import { LiaBookSolid, LiaCogSolid } from "react-icons/lia";
 import { FaInbox, FaRegCircleUser } from "react-icons/fa6";
-import { FaHome } from "react-icons/fa";
 import "./styles.css"
 export default function KambazNavigation() {
   const { pathname } = useLocation();
@@ -12,15 +11,14 @@ export default function KambazNavigation() {
     { label: "Courses", path: "/Kambaz/Dashboard", icon: LiaBookSolid },
     { label: "Calendar", path: "/Kambaz/Calendar", icon: IoCalendarOutline },
     { label: "Inbox", path: "/Kambaz/Inbox", icon: FaInbox },
-    { label: "Labs", path: "/Labs", icon: LiaCogSolid },
-    { label: "Landing Page", path: "/LandingPage", icon: FaHome },
+    { label: "Labs", path: "/Labs", icon: LiaCogSolid }
   ];
   return (
     <div id="wd-Kambaz-navigation" style={{ width: 105 }}
       className="list-group rounded-0 position-fixed bottom-0 top-0 d-none d-md-block bg-black z-2">
       <a href="https://www.northeastern.edu/" id="wd-neu-link" target="_blank"
         className="list-group-item bg-black border-0 text-center">
-        <img src="/images/NEU.png" width="75px" />
+        <img src="images/neu_logo.png" width="75px" />
       </a>
       <Link to="/Kambaz/Account" className={`list-group-item text-center border-0 bg-black
             ${pathname.includes("Account") ? "bg-white text-danger" : "bg-black text-white"}`}>

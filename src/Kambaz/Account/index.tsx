@@ -1,10 +1,10 @@
 import { Routes, Route, Navigate } from "react-router";
-import Profile from "./Profile";
-import Signup from "./Signup";
-import Signin from "./Signin";
-import AccountNavigation from "./Navigation";
+import Profile from "./Profile.tsx";
+import Signup from "./Signup.tsx";
+import Signin from "./Signin.tsx";
+import AccountNavigation from "./Navigation.tsx";
 import { useSelector } from "react-redux";
-import Users from "./Users";
+import Users from "./Users.tsx";
 export default function Account() {
   const { currentUser } = useSelector((state: any) => state.accountReducer);
   return (
