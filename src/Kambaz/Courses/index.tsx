@@ -1,24 +1,28 @@
-import { Route, Navigate, Routes, useParams, useLocation } from "react-router";
-import CoursesNavigation from "./Navigation.tsx";
+import CourseNavigation from "./Navigation";
 import Modules from "./Modules";
+import { Navigate, Route, Routes, useLocation } from "react-router";
 import Home from "./Home";
 import Assignments from "./Assignments";
-import AssignmentEditor from "./Assignments/Editor.tsx";
-import { FaAlignJustify } from "react-icons/fa6";
-import PeopleTable from "./People/Table.tsx";
-export default function Courses({ courses }: { courses: any[]; }) {
+import AssignmentEditor from "./Assignments/Editor";
+import { FaAlignJustify } from "react-icons/fa";
+import PeopleTable from "./People/Table";
+import { useParams } from "react-router";
+import CoursePeople from "./People/People";
+export default function Courses({ courses }: { courses: any[] }) {
   const { cid } = useParams();
   const course = courses.find((course) => course._id === cid);
   const { pathname } = useLocation();
+
   return (
     <div id="wd-courses">
       <h2 className="text-danger">
         <FaAlignJustify className="me-4 fs-4 mb-1" />
-        {course && course.name} &gt; {pathname.split("/")[4]}</h2>
+        {course && course.name} &gt; {pathname.split("/")[4]}
+      </h2>{" "}
       <hr />
       <div className="d-flex">
         <div className="d-none d-md-block">
-          <CoursesNavigation />
+          <CourseNavigation course={course} />
         </div>
         <div className="flex-fill">
           <Routes>
@@ -26,9 +30,12 @@ export default function Courses({ courses }: { courses: any[]; }) {
             <Route path="Home" element={<Home />} />
             <Route path="Modules" element={<Modules />} />
             <Route path="Assignments" element={<Assignments />} />
-            <Route path="Assignments/new" element={<AssignmentEditor />} />
             <Route path="Assignments/:aid" element={<AssignmentEditor />} />
             <Route path="People" element={<PeopleTable />} />
+            <Route
+              path="/Kambaz/Courses/:cid/People"
+              element={<CoursePeople />}
+            />
           </Routes>
         </div>
       </div>

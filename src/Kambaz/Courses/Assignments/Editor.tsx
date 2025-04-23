@@ -1,156 +1,232 @@
-import { useParams, useNavigate } from "react-router";
-import { Link} from "react-router-dom";
-// useLocation
-//import * as db from "../../Database";
-import { addAssignment, setAssignment,  updateAssignment, setAssignments } from "./reducer";
-//setAssignments,
+import {
+  Button,
+  Col,
+  FormControl,
+  FormGroup,
+  FormLabel,
+  FormSelect,
+  Row,
+} from "react-bootstrap";
+import { Link, useParams } from "react-router";
+import { addAssignment, updateAssignment } from "./reducer";
 import { useDispatch, useSelector } from "react-redux";
-//import { useState } from "react";
-import * as assignmentClient from "./client";
+import { useState } from "react";
+import * as client from "./Client";
 
 export default function AssignmentEditor() {
-  const { aid } = useParams();
-  const { cid } = useParams();
-  //const assignment = db.assignments;
-  const { assignment } = useSelector((state: any) => state.assignmentReducer);
   const dispatch = useDispatch();
-  const navigate = useNavigate();
-  
-  const handleSave = async () => {
-    try {
-      console.log("Saving assignment with aid:", aid);
-      
-      // Check if we're creating a new assignment
-      if (aid === "new" || aid === undefined) {
-        // Create a new assignment with the course ID
-        const assignmentToCreate = {
-          ...assignment,
-          course: cid
-        };
-        
-        console.log("Creating new assignment:", assignmentToCreate);
-        
-        // Create the assignment using the backend API
-        const newAssignment = await assignmentClient.createNewAssignment(assignmentToCreate);
-        console.log("Created assignment:", newAssignment);
-        
-        // Update Redux store
-        dispatch(addAssignment(newAssignment));
-        
-        // Refresh the assignments list
-        const assignments = await assignmentClient.fetchAssignmentsForCourse(cid as string);
-        console.log("Fetched assignments after creation:", assignments);
-        dispatch(setAssignments(assignments));
-      } else {
-        // Update existing assignment
-        console.log("Updating existing assignment:", assignment);
-        await assignmentClient.updateAssignment(assignment);
-        dispatch(updateAssignment(assignment));
-        
-        // Refresh the assignments list
-        const assignments = await assignmentClient.fetchAssignmentsForCourse(cid as string);
-        console.log("Fetched assignments after update:", assignments);
-        dispatch(setAssignments(assignments));
-      }
-      
-      // Navigate back to assignments list
-      navigate(`../`);
-    } catch (error) {
-      console.error("Error saving assignment:", error);
-      alert("Failed to save assignment. Please try again.");
-    }
-  };
-  
-  // Log the current state for debugging
-  console.log("Current assignment state:", assignment);
-  console.log("Current aid:", aid);
-  console.log("Current cid:", cid);
-  
+  const { cid, aid } = useParams();
+  const { assignments } = useSelector((state: any) => state.assignmentReducer);
+  const currentAssignment = assignments.find(
+    (assignment: any) => assignment._id === aid
+  );
+  const [assignment, setAssignment] = useState<any>(currentAssignment);
+  const title = assignment?.title || "";
+  const desciption = assignment?.description || "";
+  const points = assignment?.points || 100;
+  const due = assignment?.due || "";
+  const from = assignment?.from || "";
+  const until = assignment?.until || "";
+
   return (
-      <div id="wd-assignments-editor" className="me-4">
-        <div>
-          <label htmlFor="wd-name" className="mb-2"><b>Assignment Name</b></label>
-          <input id="wd-name" defaultValue={assignment.title} className="form-control mb-4" onChange={(e) => dispatch(setAssignment({ ...assignment, title: e.target.value }))} />
-          <textarea id="wd-description" className="form-control mb-4" onChange={(e) => dispatch(setAssignment({ ...assignment, description: e.target.value }))} >
-          {assignment.description}
-        </textarea>
-          <div className="row">
-            <label htmlFor="wd-points" className="col"><span className="float-end me-2">Points</span></label>
-            <input id="wd-points" defaultValue={assignment.points} className="form-control mb-3 col" onChange={(e) =>
-                dispatch(setAssignment({ ...assignment, points: e.target.value }))
-            } />
+    <div id="wd-assignments-editor">
+      <FormGroup className="mb-3" controlId="wd-email">
+        <FormLabel>Assignment Name</FormLabel>
+        <FormControl
+          type="text"
+          placeholder="New Assignment"
+          value={title}
+          onChange={(e) =>
+            setAssignment((prev: any) => ({ ...prev, title: e.target.value }))
+          }
+        />
+        <br />
+        <FormControl
+          as="textarea"
+          rows={10}
+          value={desciption}
+          onChange={(e) =>
+            setAssignment((prev: any) => ({
+              ...prev,
+              description: e.target.value,
+            }))
+          }
+        />
+      </FormGroup>
+      <FormGroup as={Row}>
+        <Col>
+          <FormLabel>Points</FormLabel>
+        </Col>
+        <Col xs={9}>
+          <FormControl
+            type="number"
+            value={points}
+            onChange={(e) =>
+              setAssignment((prev: any) => ({
+                ...prev,
+                points: e.target.value,
+              }))
+            }
+          />
+        </Col>
+      </FormGroup>
+      <FormGroup as={Row}>
+        <Col>
+          <FormLabel>Assignments</FormLabel>
+        </Col>
+        <Col xs={9}>
+          <FormSelect aria-label="Assignment Groups">
+            <option value="ASSIGNMENT1">Assignment1</option>
+            <option value="ASSIGNMENT2">Assignment2</option>
+            <option value="ASSIGNMENT3">Assignment3</option>
+          </FormSelect>
+        </Col>
+      </FormGroup>
+
+      <FormGroup as={Row}>
+        <Col>
+          <FormLabel>Display Grade as</FormLabel>
+        </Col>
+        <Col xs={9}>
+          <FormSelect aria-label="Display Grade as">
+            <option value="Percentage">Percentage</option>
+            <option value="four-point">Four Point</option>
+            <option value="Letter">Letter</option>
+          </FormSelect>
+        </Col>
+      </FormGroup>
+
+      <FormGroup as={Row}>
+        <Col>
+          <FormLabel>Submission Type</FormLabel>
+        </Col>
+        <Col xs={9}>
+          <div className="p-3 border-black border border-light-subtle">
+            <FormSelect aria-label="Submission Type">
+              <option value="Online">Online</option>
+              <option value="Physical">Physical</option>
+            </FormSelect>
+            <form>
+              <input
+                type="checkbox"
+                className="m-2"
+                id="textEntry"
+                name="textEntry"
+              />
+              <label htmlFor="textEntry">Text Entry</label>
+              <br />
+              <input
+                type="checkbox"
+                className="m-2"
+                id="websiteUrl"
+                name="websiteUrl"
+              />
+              <label htmlFor="websiteUrl">Website URL</label>
+              <br />
+              <input
+                type="checkbox"
+                className="m-2"
+                id="mediaRecordings"
+                name="mediaRecordings"
+              />
+              <label htmlFor="mediaRecordings">Media Recordings</label>
+              <br />
+              <input
+                type="checkbox"
+                className="m-2"
+                id="studentAnnotation"
+                name="studentAnnotation"
+              />
+              <label htmlFor="studentAnnotation">Student Annotation</label>
+              <br />
+              <input
+                type="checkbox"
+                className="m-2"
+                id="fileUploads"
+                name="fileUploads"
+              />
+              <label htmlFor="fileUploads">File Uploads</label>
+              <br />
+            </form>
           </div>
-          <div className="row">
-            <label htmlFor="wd-group" className="col"><span className="float-end me-2">Assignment Group</span></label>
-            <select id="wd-group" name="Assignment Groups" className="form-select mb-3 col">
-              <option value="option1">ASSIGNMENTS</option>
-            </select>
+        </Col>
+      </FormGroup>
+
+      <FormGroup as={Row}>
+        <Col>
+          <FormLabel>Assign</FormLabel>
+        </Col>
+        <Col xs={9}>
+          <div className="p-3 border-black border border-light-subtle">
+            <FormLabel>Assign to</FormLabel>
+            <FormControl type="text" />
+            <FormLabel>Due</FormLabel>
+            <FormControl
+              type="date"
+              name="duedate"
+              value={due}
+              onChange={(e) =>
+                setAssignment((prev: any) => ({ ...prev, due: e.target.value }))
+              }
+            />
+            <Row>
+              <Col>
+                <FormLabel>Available from</FormLabel>
+                <FormControl
+                  type="date"
+                  name="duedate"
+                  value={from}
+                  onChange={(e) =>
+                    setAssignment((prev: any) => ({
+                      ...prev,
+                      from: e.target.value,
+                    }))
+                  }
+                />
+              </Col>
+              <Col>
+                <FormLabel>Until</FormLabel>
+                <FormControl
+                  type="date"
+                  name="duedate"
+                  value={until}
+                  onChange={(e) =>
+                    setAssignment((prev: any) => ({
+                      ...prev,
+                      until: e.target.value,
+                    }))
+                  }
+                />
+              </Col>
+            </Row>
           </div>
-          <div className="row">
-            <label htmlFor="wd-display-grade-as" className="col"><span className="float-end me-2">Display Grade as</span></label>
-            <select id="wd-display-grade-as" name="Display grade as" className="form-select mb-3 col">
-              <option value="option1">Percentage</option>
-              <option value="option2">Letter</option>
-            </select>
-          </div>
-          <div className="row">
-            <label htmlFor="wd-submission-type" className="col"><span className="float-end me-2">Submission type</span></label>
-            <div className="border border-secondary rounded p-3 mb-3 col">
-              <select id="wd-submission-type" name="submission type" className="form-select mb-3">
-                <option value="option1">Online</option>
-                <option value="option2">In person</option>
-              </select>
-
-              <label className="mb-2"><b>Online Entry Options</b></label><br />
-
-              <input type="checkbox" name="check-genre" id="wd-text-entry" className="form-check-input me-2" />
-              <label htmlFor="wd-text-entry" className="form-check-label mb-2">Text Entry</label><br />
-
-              <input type="checkbox" name="check-genre" id="wd-website-url" className="form-check-input me-2" />
-              <label htmlFor="wd-webiste-url" className="form-check-label mb-2">Website URL</label><br />
-
-              <input type="checkbox" name="check-genre" id="wd-media-recordings" className="form-check-input me-2" />
-              <label htmlFor="wd-media-recordings" className="form-check-label mb-2">Media Recordings</label><br />
-
-              <input type="checkbox" name="check-genre" id="wd-student-annotation" className="form-check-input me-2" />
-              <label htmlFor="wd-student-annotation" className="form-check-label mb-2">Student Annotation</label><br />
-
-              <input type="checkbox" name="check-genre" id="wd-file-upload" className="form-check-input me-2" />
-              <label htmlFor="wd-file-upload" className="form-check-label mb-2">File Uploads</label>
-            </div>
-          </div>
-          <div className="row">
-            <label htmlFor="wd-assign-to" className="col"><span className="float-end me-2">Assign</span></label>
-            <div className="border border-secondary rounded p-3 mb-3 col">
-              <label htmlFor="wd-assign-to"><b>Assign to</b></label><br />
-              <input id="wd-assign-to" value="Everyone" className="form-control mb-2" />
-
-              <label htmlFor="wd-due-date"><b>Due</b></label><br />
-              <input type="datetime-local" id="wd-due-date" defaultValue={assignment.due} onChange={(e) =>
-                  dispatch(setAssignment({ ...assignment, due: e.target.value }))
-              } className="form-control mb-2" />
-
-              <div className="row">
-                <div className="col">
-                  <label htmlFor="wd-available-from"><b>Available From</b></label>
-                  <input type="datetime-local" id="wd-available-from" defaultValue={assignment.unlock} className="form-control mb-2" onChange={(e) =>
-                      dispatch(setAssignment({ ...assignment, unlock: e.target.value }))
-                  } />
-                </div>
-                <div className="col">
-                  <label htmlFor="wd-available-until"><b>Until</b></label>
-                  <input type="datetime-local" id="wd-available-until" defaultValue={assignment.due} className="form-control mb-2" />
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
+        </Col>
         <hr />
-        <button onClick={handleSave} className="btn btn-lg btn-danger me-1 float-end">Save</button>
-        <Link to={`../`}>
-          <button className="btn btn-lg btn-secondary me-1 float-end">Cancel</button>
-        </Link>
-
-      </div>
+        <Col>
+          <Link to={`/Kambaz/Courses/${cid}/Assignments`}>
+            <Button className="float-end" variant="secondary">
+              Cancel
+            </Button>
+          </Link>
+          <Link to={`/Kambaz/Courses/${cid}/Assignments`}>
+            <Button
+              className="float-end"
+              variant="danger"
+              onClick={async () => {
+                if (currentAssignment) {
+                  await client.updateAssignment({ ...assignment, course: cid });
+                  dispatch(updateAssignment({ ...assignment, course: cid }));
+                } else {
+                  await client.addAssignment({ ...assignment, course: cid });
+                  dispatch(addAssignment({ ...assignment, course: cid }));
+                }
+              }}
+            >
+              Save
+            </Button>
+          </Link>
+        </Col>
+      </FormGroup>
+    </div>
   );
 }

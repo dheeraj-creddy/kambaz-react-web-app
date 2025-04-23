@@ -1,109 +1,118 @@
-import { useEffect } from "react";
-import "../../styles.css";
+import { Button, ListGroup, Modal } from "react-bootstrap";
 import { BsGripVertical } from "react-icons/bs";
-import { MdOutlineAssignment } from "react-icons/md";
-import { FaTrash } from "react-icons/fa";
-import AssignmentControlButtons from "./AssignmentControlButtons";
-import DescControlButtons from "./DescControlButtons";
-import AssignmentControls from "./AssignmentControls";
+import { LuNewspaper } from "react-icons/lu";
+import { IoCaretDown } from "react-icons/io5";
 import { Link, useParams } from "react-router-dom";
+import AssignmentsControls from "./AssignmentsControl";
 import { useDispatch, useSelector } from "react-redux";
-import { setAssignment, deleteAssignment, setAssignments } from "./reducer";
-import * as assignmentClient from "./client";
+import { FaTrash } from "react-icons/fa";
+import { deleteAssignment, setAssignments } from "./reducer";
+import * as assignmentClient from "./Client";
+import { useState, useEffect } from "react";
 
 export default function Assignments() {
-  const { cid } = useParams();
-  const intialAssignment = {
-    title: "New Assignment Title",
-    course: cid,
-    description: "New Description",
-    points: "100",
-    due: "2023-09-18T23:59",
-    unlock: "2023-09-11T00:00"
-  }
-  const { assignments } = useSelector((state: any) => state.assignmentReducer);
   const dispatch = useDispatch();
-  
-  const fetchAllAssignments = async () => {
-    try {
-      console.log("Fetching assignments for course:", cid);
-      const assignments = await assignmentClient.fetchAssignmentsForCourse(cid as string);
-      console.log("Fetched assignments:", assignments);
-      dispatch(setAssignments(assignments));
-    } catch (error) {
-      console.error("Error fetching assignments:", error);
-    }
+  const { cid } = useParams();
+  const { currentUser } = useSelector((state: any) => state.accountReducer);
+  const { assignments } = useSelector((state: any) => state.assignmentReducer);
+  const isFaculty = currentUser?.role === "FACULTY";  // Adding the isFaculty check
+
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [selectedAssignment, setSelectedAssignment] = useState<any>(null);
+
+  const fetchAssignments = async () => {
+    if (!cid) return;
+    const fetchedAssignments = await assignmentClient.findAssignmentsForCourse(cid);
+    dispatch(setAssignments(fetchedAssignments));
   };
-  
+
+  const handleDelete = (assignment: any) => {
+    setSelectedAssignment(assignment);
+    setShowDeleteDialog(true);
+  };
+
+  const handleDeleteConfirm = async () => {
+    if (selectedAssignment) {
+      await assignmentClient.deleteAssignment(selectedAssignment._id);
+      dispatch(deleteAssignment(selectedAssignment._id));
+    }
+    setShowDeleteDialog(false);
+  };
+
+  const handleDeleteCancel = () => {
+    setShowDeleteDialog(false);
+  };
+
   useEffect(() => {
-    fetchAllAssignments();
+    fetchAssignments();
   }, [cid]);
 
-  const removeAssignment = async (assignmentId: string) => {
-    try {
-      console.log("Deleting assignment:", assignmentId);
-      await assignmentClient.deleteAssignment(assignmentId);
-      dispatch(deleteAssignment(assignmentId));
-      // Refresh assignments after deletion
-      fetchAllAssignments();
-    } catch (error) {
-      console.error("Error deleting assignment:", error);
-      alert("Failed to delete assignment. Please try again.");
-    }
-  }
-
   return (
-      <div className="me-4">
-        <AssignmentControls setAssignment={() => dispatch(setAssignment(intialAssignment))} /><br /><br /><br /><br />
-        <ul id="wd-modules" className="list-group rounded-0">
-          <li className="wd-module list-group-item p-0 mb-5 fs-5 border-gray">
-            <div className="wd-title p-3 ps-2 bg-secondary">
-              <BsGripVertical className="me-2 fs-3" />
-              ASSIGNMENTS
-              <AssignmentControlButtons />
-              <span className="float-end border boder-dark rounded p-1">40% of Total</span>
-            </div>
-            <ul className="wd-lessons list-group rounded-0">
-              {assignments && assignments.length > 0 ? (
-                assignments.map((assignment: any) => (
-                  <li key={assignment._id} className="wd-lesson list-group-item p-3 ps-1">
-                    <div className="position-absolute top-50 start-0 translate-middle-y">
-                      <BsGripVertical className="me-2 fs-3" />
-                      <MdOutlineAssignment className="me-2 fs-3" color="green" />
-                    </div>
-                    <div className="position-absolute top-50 start-50 translate-middle w-75">
-                      <Link className="wd-assignment-link text-black link-underline link-underline-opacity-0"
-                            to={`./${assignment._id}`} onClick={() => dispatch(setAssignment(assignment))}>
+    <div>
+      <AssignmentsControls />
+      <br /><br /><br /><br />
+
+      <div className="wd-title p-3 ps-2 bg-secondary">
+        <BsGripVertical className="me-2 fs-3" /> <IoCaretDown /> ASSIGNMENTS
+      </div>
+
+      <ListGroup className="rounded-0" id="wd-modules">
+        {assignments
+          .filter((assignment: any) => assignment.course === cid)
+          .map((assignment: any) => (
+            <ListGroup.Item key={assignment._id} className="wd-module p-0 mb-0 fs-6">
+              <ListGroup className="wd-lessons rounded-0 mb-0">
+                <ListGroup.Item className="wd-lesson p-3 ps-1 d-flex align-items-center mb-0">
+                  <BsGripVertical className="me-2 fs-3" /> <LuNewspaper className="me-2 fs-3" color="green" />
+                  <div className="wd-assignment-text ms-2">
+                    {/* Conditionally render the assignment title */}
+                    {isFaculty ? (
+                      <Link
+                        to={`/Kambaz/Courses/${cid}/Assignments/${assignment._id}`}  // Fixed template string syntax
+                        className="wd-assignment-link d-block"
+                      >
                         {assignment.title}
                       </Link>
-                      <p><text className="text-danger">Multiple Modules</text> | <b>Not Available until</b> {assignment.unlock.split("T")[0]} at {assignment.unlock.split("T")[1]} | <b>Due</b> {assignment.due.split("T")[0]} at {assignment.due.split("T")[1]} | {assignment.points} pts</p>
-                    </div>
-                    <div className="position-absolute top-50 end-0 translate-middle-y">
-                      <FaTrash className="text-danger me-2" onClick={(e) => {
-                        e.preventDefault();
-
-                        const confirmDelete = window.confirm(
-                            "Are you sure you want to delete this assignment?"
-                        );
-                        if (confirmDelete) {
-                          removeAssignment(assignment._id);
-                        }
-                      }} />
-                      <DescControlButtons />
-                    </div>
-                    <br /><br /><br />
-                  </li>
-                ))
-              ) : (
-                <li className="wd-lesson list-group-item p-3 ps-1">
-                  <div className="text-center">
-                    <p>No assignments found. Click "Add Assignment" to create one.</p>
+                    ) : (
+                      <strong>{assignment.title}</strong>  // Display title as plain text for students
+                    )}
+                    <span className="d-block">
+                      <span style={{ color: '#DC3545' }}>Multiple Modules</span> | <b>Available From </b> {assignment.available} | <b>Available Until </b> {assignment.until} 
+                    </span>
+                    <span className="d-block"> <b>Due </b> {assignment.due} | {assignment.points}pts</span>
                   </div>
-                </li>
-              )}
-            </ul>
-          </li>
-        </ul>
-      </div>
+                  {/* Conditionally render the trash icon only for faculty */}
+                  {isFaculty && (
+                    <FaTrash
+                      className="text-danger me-2 mb-1"
+                      cursor={"pointer"}
+                      onClick={() => handleDelete(assignment)}
+                    />
+                  )}
+                </ListGroup.Item>
+              </ListGroup>
+            </ListGroup.Item>
+          ))}
+      </ListGroup>
+
+      <Modal show={showDeleteDialog} onHide={handleDeleteCancel} centered>
+        <Modal.Header closeButton>
+          <Modal.Title>Confirm Deletion</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          Are you sure you want to delete{" "}
+          <strong>{selectedAssignment?.title}</strong>? This action cannot be
+          undone.
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={handleDeleteCancel}>
+            Cancel
+          </Button>
+          <Button variant="danger" onClick={handleDeleteConfirm}>
+            Yes, Delete
+          </Button>
+        </Modal.Footer>
+      </Modal>
+    </div>
   );
 }
